@@ -34,23 +34,19 @@ SECTIONS
   /* set the base address at the beginnning of the RAM */
   . = 0x80000000;
 
+  /*.cached_region : { *(.cached_region) }*/
+
+  /*. = 0x80080000;*/
+
   .tohost : { *(.tohost) }
 
-  _begin = .;
+  /*. = 0x80080048;*/
 
-  .non_cached_region : { *(.non_cached_region) }
-
-  . = 0x80080000;
-
-  /*_begin = .;*/
-
-  .cached_region : { *(.cached_region) }
-
-  . = _begin;
+  /*.non_cached_region : { *(.non_cached_region) }*/
 
   /* data segment */
-  /*.data : { *(.data) }*/
-  .data : { *(.non_cached_region) *(.cached_region) }
+  /*.data : { *(.cached_region) *(.non_cached_region) }*/
+  .data : { *(.data) }
 
   .sdata : {
     __global_pointer$ = . + 0x800;

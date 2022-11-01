@@ -8,11 +8,17 @@
 
 #include <stdint.h>
 
-//volatile uint64_t *variable_A = (uint64_t*)0x80000088;
-//volatile uint64_t *variable_B = (uint64_t*)0x80000090;
-volatile uint64_t variable_A __attribute__((section("non_cached_region")));
-volatile uint64_t variable_B __attribute__((section("non_cached_region")));
+//uint64_t variable_A __attribute__((section("non_cached_region")));
+//uint64_t variable_B __attribute__((section("non_cached_region")));
 // global variables are in shared memory space
+//volatile uint64_t variable_C;
+//uint64_t variable_D __attribute__((section("cached_region")));
+
+//uint64_t variable_A __attribute__((at(0x80000000)));
+//uint64_t variable_B __attribute__((at(0x80080000)));
+// global variables are in shared memory space
+#define variable_A  (*((volatile uint64_t *) 0x80000048))
+#define variable_B  (*((volatile uint64_t *) 0x80080002))
 
 void read_non_cacheable_locations()
 {

@@ -52,6 +52,10 @@ package culsans_pkg;
   localparam logic[63:0] EthernetLength = 64'h10000;
   localparam logic[63:0] GPIOLength     = 64'h1000;
   localparam logic[63:0] DRAMLength     = 64'h40000000; // 1GByte of DDR (split between two chips on Genesys2)
+
+  localparam logic[63:0] uncachedLength = 64'h80000; // half of the memory is un-cached, half is cached [80000000, 80100000]
+  localparam logic[63:0] tohostLength   = 64'h48;
+
   localparam logic[63:0] SRAMLength     = 64'h1800000;  // 24 MByte of SRAM
   // Instantiate AXI protocol checkers
   localparam bit GenProtocolChecker = 1'b0;
@@ -85,8 +89,8 @@ package culsans_pkg;
     ExecuteRegionLength:   {DRAMLength, ROMLength, DebugLength},
     // cached region
     NrCachedRegionRules:    1,
-    CachedRegionAddrBase:  {DRAMBase},
-    CachedRegionLength:    {DRAMLength},
+    CachedRegionAddrBase:  {DRAMBase}, //{DRAMBase + uncachedLength},
+    CachedRegionLength:    {uncachedLength}, //{DRAMLength - uncachedLength},
     //  cache config
     Axi64BitCompliant:      1'b1,
     SwapEndianess:          1'b0,
@@ -96,7 +100,7 @@ package culsans_pkg;
   };
 
   localparam exitOffset = 64'h1000;
-  localparam exitAddr = DRAMBase + exitOffset;
+  localparam exitAddr = DRAMBase;// + uncachedLength;// + exitOffset;
 
   // used in axi_adapter.sv
   typedef enum logic { SINGLE_REQ, CACHE_LINE_REQ } ad_req_t;
