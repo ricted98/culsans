@@ -1,7 +1,7 @@
 Archive member included to satisfy reference by file (symbol)
 
 ../../libs/libintegr.a(utils.o)
-                              /tmp/ccXQlwYG.o (ISR)
+                              /tmp/cc2NGan9.o (ISR)
 
 Memory Configuration
 
@@ -10,36 +10,53 @@ Name             Origin             Length             Attributes
 
 Linker script and memory map
 
-LOAD /tmp/ccQORKQb.o
-LOAD /tmp/ccXQlwYG.o
+LOAD /tmp/ccc9Bbib.o
+LOAD /tmp/cc2NGan9.o
 LOAD /opt/riscv/lib/gcc/riscv64-unknown-elf/12.2.0/../../../../riscv64-unknown-elf/lib/libm.a
 LOAD /opt/riscv/lib/gcc/riscv64-unknown-elf/12.2.0/libgcc.a
-LOAD /tmp/ccWquX7b.o
+LOAD /tmp/ccuwVMt7.o
 LOAD ../../libs/libintegr.a
                 0x0000000080000000                . = 0x80000000
 
 .tohost         0x0000000080000000       0x48
  *(.tohost)
- .tohost        0x0000000080000000       0x48 /tmp/ccXQlwYG.o
+ .tohost        0x0000000080000000       0x48 /tmp/cc2NGan9.o
                 0x0000000080000000                tohost
                 0x0000000080000040                fromhost
+                0x0000000080000048                . = 0x80000048
 
-.data           0x0000000080000048       0x10
- *(.data)
- .data          0x0000000080000048       0x10 /tmp/ccQORKQb.o
- .data          0x0000000080000058        0x0 /tmp/ccXQlwYG.o
- .data          0x0000000080000058        0x0 /tmp/ccWquX7b.o
- .data          0x0000000080000058        0x0 ../../libs/libintegr.a(utils.o)
+.non_cached_region
+                0x0000000080000048       0x10
+ *(.non_cached_region)
+ .non_cached_region
+                0x0000000080000048       0x10 /tmp/ccuwVMt7.o
+                0x0000000080000048                variable_A
+                0x0000000080000050                variable_B
+                0x0000000080080000                . = 0x80080000
 
-.got            0x0000000080000058       0x20
- .got           0x0000000080000058       0x20 /tmp/ccQORKQb.o
-                0x0000000080000058                _GLOBAL_OFFSET_TABLE_
+.cached_region  0x0000000080080000        0x8
+ *(.cached_region)
+ .cached_region
+                0x0000000080080000        0x8 /tmp/ccuwVMt7.o
+                0x0000000080080000                variable_D
 
-.got.plt        0x0000000080000078       0x10
- .got.plt       0x0000000080000078       0x10 /tmp/ccQORKQb.o
+.data           0x0000000080080008       0x10
+ *(.cached_region)
+ *(.non_cached_region)
+ .data          0x0000000080080008       0x10 /tmp/ccc9Bbib.o
+ .data          0x0000000080080018        0x0 /tmp/cc2NGan9.o
+ .data          0x0000000080080018        0x0 /tmp/ccuwVMt7.o
+ .data          0x0000000080080018        0x0 ../../libs/libintegr.a(utils.o)
 
-.sdata          0x0000000080000088        0x0
-                0x0000000080000888                __global_pointer$ = (. + 0x800)
+.got            0x0000000080080018       0x20
+ .got           0x0000000080080018       0x20 /tmp/ccc9Bbib.o
+                0x0000000080080018                _GLOBAL_OFFSET_TABLE_
+
+.got.plt        0x0000000080080038       0x10
+ .got.plt       0x0000000080080038       0x10 /tmp/ccc9Bbib.o
+
+.sdata          0x0000000080080048        0x0
+                0x0000000080080848                __global_pointer$ = (. + 0x800)
  *(.srodata.cst16)
  *(.srodata.cst8)
  *(.srodata.cst4)
@@ -51,36 +68,36 @@ LOAD ../../libs/libintegr.a
  *(.sbss .sbss.* .gnu.linkonce.sb.*)
  *(.scommon)
 
-.bss            0x0000000080000088        0x4
+.bss            0x0000000080080048        0x4
  *(.bss)
- .bss           0x0000000080000088        0x0 /tmp/ccQORKQb.o
- .bss           0x0000000080000088        0x0 /tmp/ccXQlwYG.o
- .bss           0x0000000080000088        0x4 /tmp/ccWquX7b.o
- .bss           0x000000008000008c        0x0 ../../libs/libintegr.a(utils.o)
+ .bss           0x0000000080080048        0x0 /tmp/ccc9Bbib.o
+ .bss           0x0000000080080048        0x0 /tmp/cc2NGan9.o
+ .bss           0x0000000080080048        0x4 /tmp/ccuwVMt7.o
+ .bss           0x000000008008004c        0x0 ../../libs/libintegr.a(utils.o)
 
-.tdata          0x000000008000008c        0x0
-                0x000000008000008c                _tls_data = .
+.tdata          0x000000008008004c        0x0
+                0x000000008008004c                _tls_data = .
  *(.tdata.begin)
- .tdata.begin   0x000000008000008c        0x0 /tmp/ccXQlwYG.o
+ .tdata.begin   0x000000008008004c        0x0 /tmp/cc2NGan9.o
  *(.tdata)
  *(.tdata.end)
- .tdata.end     0x000000008000008c        0x0 /tmp/ccXQlwYG.o
+ .tdata.end     0x000000008008004c        0x0 /tmp/cc2NGan9.o
 
-.tbss           0x000000008000008c        0x0
+.tbss           0x000000008008004c        0x0
  *(.tbss)
  *(.tbss.end)
- .tbss.end      0x000000008000008c        0x0 /tmp/ccXQlwYG.o
-                0x000000008000008c                _end = .
+ .tbss.end      0x000000008008004c        0x0 /tmp/cc2NGan9.o
+                0x000000008008004c                _end = .
                 0x0000000080100000                . = 0x80100000
 
 .text.init      0x0000000080100000      0x11a
  *(.text.init)
- .text.init     0x0000000080100000      0x11a /tmp/ccXQlwYG.o
+ .text.init     0x0000000080100000      0x11a /tmp/cc2NGan9.o
                 0x0000000080100000                _start
 
 .text           0x0000000080100120      0xc66
  *(.text)
- .text          0x0000000080100120      0x9f6 /tmp/ccQORKQb.o
+ .text          0x0000000080100120      0x9f6 /tmp/ccc9Bbib.o
                 0x00000000801002a0                tohost_exit
                 0x00000000801002e0                handle_trap
                 0x0000000080100300                exit
@@ -97,9 +114,9 @@ LOAD ../../libs/libintegr.a
                 0x0000000080100a20                free
                 0x0000000080100ac0                _malloc_addblock
  *fill*         0x0000000080100b16        0x2 
- .text          0x0000000080100b18       0x8a /tmp/ccXQlwYG.o
+ .text          0x0000000080100b18       0x8a /tmp/cc2NGan9.o
  *fill*         0x0000000080100ba2       0x1e 
- .text          0x0000000080100bc0      0x14e /tmp/ccWquX7b.o
+ .text          0x0000000080100bc0      0x14e /tmp/ccuwVMt7.o
                 0x0000000080100bc0                read_non_cacheable_locations
                 0x0000000080100c20                thread_entry
                 0x0000000080100cc0                main
@@ -110,24 +127,24 @@ LOAD ../../libs/libintegr.a
 OUTPUT(main.riscv elf64-littleriscv)
 
 .rela.dyn       0x0000000080100d88       0x48
- .rela.got      0x0000000080100d88       0x48 /tmp/ccQORKQb.o
- .rela.text     0x0000000080100dd0        0x0 /tmp/ccQORKQb.o
+ .rela.got      0x0000000080100d88       0x48 /tmp/ccc9Bbib.o
+ .rela.text     0x0000000080100dd0        0x0 /tmp/ccc9Bbib.o
  .rela.text.init
-                0x0000000080100dd0        0x0 /tmp/ccQORKQb.o
+                0x0000000080100dd0        0x0 /tmp/ccc9Bbib.o
 
 .comment        0x0000000000000000       0x1b
- .comment       0x0000000000000000       0x1b /tmp/ccQORKQb.o
+ .comment       0x0000000000000000       0x1b /tmp/ccc9Bbib.o
                                          0x1c (size before relaxing)
- .comment       0x000000000000001b       0x1c /tmp/ccWquX7b.o
+ .comment       0x000000000000001b       0x1c /tmp/ccuwVMt7.o
  .comment       0x000000000000001b       0x1c ../../libs/libintegr.a(utils.o)
 
 .riscv.attributes
                 0x0000000000000000       0x39
  .riscv.attributes
-                0x0000000000000000       0x35 /tmp/ccQORKQb.o
+                0x0000000000000000       0x35 /tmp/ccc9Bbib.o
  .riscv.attributes
-                0x0000000000000035       0x37 /tmp/ccXQlwYG.o
+                0x0000000000000035       0x37 /tmp/cc2NGan9.o
  .riscv.attributes
-                0x000000000000006c       0x39 /tmp/ccWquX7b.o
+                0x000000000000006c       0x39 /tmp/ccuwVMt7.o
  .riscv.attributes
                 0x00000000000000a5       0x35 ../../libs/libintegr.a(utils.o)

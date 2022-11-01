@@ -89,8 +89,8 @@ package culsans_pkg;
     ExecuteRegionLength:   {DRAMLength, ROMLength, DebugLength},
     // cached region
     NrCachedRegionRules:    1,
-    CachedRegionAddrBase:  {DRAMBase}, //{DRAMBase + uncachedLength},
-    CachedRegionLength:    {uncachedLength}, //{DRAMLength - uncachedLength},
+    CachedRegionAddrBase:  {DRAMBase + uncachedLength},
+    CachedRegionLength:    {DRAMLength - uncachedLength},
     //  cache config
     Axi64BitCompliant:      1'b1,
     SwapEndianess:          1'b0,
