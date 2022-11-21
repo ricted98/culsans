@@ -45,7 +45,8 @@ SECTIONS
   .cached_region : { *(.cached_region) }
 
   /* data segment */
-  .data : { *(.cached_region) *(.non_cached_region) }
+  /*.data : { *(.cached_region) *(.non_cached_region) }*/
+  .data : { *(.cached_region)}
   /*.data : { *(.data) }*/
 
   .sdata : {
