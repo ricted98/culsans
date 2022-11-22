@@ -1,0 +1,149 @@
+Archive member included to satisfy reference by file (symbol)
+
+../../libs/libintegr.a(utils.o)
+                              /tmp/cc1IVp7V.o (ISR)
+
+Memory Configuration
+
+Name             Origin             Length             Attributes
+*default*        0x0000000000000000 0xffffffffffffffff
+
+Linker script and memory map
+
+LOAD /tmp/ccUJdxvD.o
+LOAD /tmp/cc1IVp7V.o
+LOAD /opt/riscv/lib/gcc/riscv64-unknown-elf/12.2.0/../../../../riscv64-unknown-elf/lib/libm.a
+LOAD /opt/riscv/lib/gcc/riscv64-unknown-elf/12.2.0/libgcc.a
+LOAD /tmp/ccwwJ6Ke.o
+LOAD ../../libs/libintegr.a
+                0x0000000080000000                . = 0x80000000
+
+.tohost         0x0000000080000000       0x48
+ *(.tohost)
+ .tohost        0x0000000080000000       0x48 /tmp/cc1IVp7V.o
+                0x0000000080000000                tohost
+                0x0000000080000040                fromhost
+                0x0000000080000048                . = 0x80000048
+
+.non_cached_region
+                0x0000000080000048       0x10
+ *(.non_cached_region)
+ .non_cached_region
+                0x0000000080000048       0x10 /tmp/ccwwJ6Ke.o
+                0x0000000080000048                variable_A
+                0x0000000080000050                variable_B
+                0x0000000080080000                . = 0x80080000
+
+.cached_region  0x0000000080080000        0x8
+ *(.cached_region)
+ .cached_region
+                0x0000000080080000        0x8 /tmp/ccwwJ6Ke.o
+                0x0000000080080000                variable_C
+
+.data           0x0000000080080008       0x10
+ *(.cached_region)
+ .data          0x0000000080080008       0x10 /tmp/ccUJdxvD.o
+ .data          0x0000000080080018        0x0 /tmp/cc1IVp7V.o
+ .data          0x0000000080080018        0x0 /tmp/ccwwJ6Ke.o
+ .data          0x0000000080080018        0x0 ../../libs/libintegr.a(utils.o)
+
+.got            0x0000000080080018       0x20
+ .got           0x0000000080080018       0x20 /tmp/ccUJdxvD.o
+                0x0000000080080018                _GLOBAL_OFFSET_TABLE_
+
+.got.plt        0x0000000080080038       0x10
+ .got.plt       0x0000000080080038       0x10 /tmp/ccUJdxvD.o
+
+.sdata          0x0000000080080048        0x0
+                0x0000000080080848                __global_pointer$ = (. + 0x800)
+ *(.srodata.cst16)
+ *(.srodata.cst8)
+ *(.srodata.cst4)
+ *(.srodata.cst2)
+ *(.srodata*)
+ *(.sdata .sdata.* .gnu.linkonce.s.*)
+
+.sbss
+ *(.sbss .sbss.* .gnu.linkonce.sb.*)
+ *(.scommon)
+
+.bss            0x0000000080080048        0x4
+ *(.bss)
+ .bss           0x0000000080080048        0x0 /tmp/ccUJdxvD.o
+ .bss           0x0000000080080048        0x0 /tmp/cc1IVp7V.o
+ .bss           0x0000000080080048        0x4 /tmp/ccwwJ6Ke.o
+ .bss           0x000000008008004c        0x0 ../../libs/libintegr.a(utils.o)
+
+.tdata          0x000000008008004c        0x0
+                0x000000008008004c                _tls_data = .
+ *(.tdata.begin)
+ .tdata.begin   0x000000008008004c        0x0 /tmp/cc1IVp7V.o
+ *(.tdata)
+ *(.tdata.end)
+ .tdata.end     0x000000008008004c        0x0 /tmp/cc1IVp7V.o
+
+.tbss           0x000000008008004c        0x0
+ *(.tbss)
+ *(.tbss.end)
+ .tbss.end      0x000000008008004c        0x0 /tmp/cc1IVp7V.o
+                0x000000008008004c                _end = .
+                0x0000000080100000                . = 0x80100000
+
+.text.init      0x0000000080100000      0x11a
+ *(.text.init)
+ .text.init     0x0000000080100000      0x11a /tmp/cc1IVp7V.o
+                0x0000000080100000                _start
+
+.text           0x0000000080100120      0xc66
+ *(.text)
+ .text          0x0000000080100120      0x9f6 /tmp/ccUJdxvD.o
+                0x00000000801002a0                tohost_exit
+                0x00000000801002e0                handle_trap
+                0x0000000080100300                exit
+                0x0000000080100320                abort
+                0x0000000080100400                _init
+                0x0000000080100460                memcpy
+                0x0000000080100520                memset
+                0x0000000080100600                strlen
+                0x0000000080100640                strnlen
+                0x00000000801006a0                strcmp
+                0x0000000080100720                strcpy
+                0x0000000080100780                atol
+                0x0000000080100920                malloc
+                0x0000000080100a20                free
+                0x0000000080100ac0                _malloc_addblock
+ *fill*         0x0000000080100b16        0x2 
+ .text          0x0000000080100b18       0x8a /tmp/cc1IVp7V.o
+ *fill*         0x0000000080100ba2       0x1e 
+ .text          0x0000000080100bc0      0x14e /tmp/ccwwJ6Ke.o
+                0x0000000080100bc0                read_non_cacheable_locations
+                0x0000000080100c20                thread_entry
+                0x0000000080100cc0                main
+ *fill*         0x0000000080100d0e       0x12 
+ .text          0x0000000080100d20       0x66 ../../libs/libintegr.a(utils.o)
+                0x0000000080100d20                sleep_busy
+                0x0000000080100d60                ISR
+OUTPUT(main.riscv elf64-littleriscv)
+
+.rela.dyn       0x0000000080100d88       0x48
+ .rela.got      0x0000000080100d88       0x48 /tmp/ccUJdxvD.o
+ .rela.text     0x0000000080100dd0        0x0 /tmp/ccUJdxvD.o
+ .rela.text.init
+                0x0000000080100dd0        0x0 /tmp/ccUJdxvD.o
+
+.comment        0x0000000000000000       0x1b
+ .comment       0x0000000000000000       0x1b /tmp/ccUJdxvD.o
+                                         0x1c (size before relaxing)
+ .comment       0x000000000000001b       0x1c /tmp/ccwwJ6Ke.o
+ .comment       0x000000000000001b       0x1c ../../libs/libintegr.a(utils.o)
+
+.riscv.attributes
+                0x0000000000000000       0x39
+ .riscv.attributes
+                0x0000000000000000       0x35 /tmp/ccUJdxvD.o
+ .riscv.attributes
+                0x0000000000000035       0x37 /tmp/cc1IVp7V.o
+ .riscv.attributes
+                0x000000000000006c       0x39 /tmp/ccwwJ6Ke.o
+ .riscv.attributes
+                0x00000000000000a5       0x35 ../../libs/libintegr.a(utils.o)
