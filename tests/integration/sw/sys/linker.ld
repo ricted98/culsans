@@ -44,6 +44,8 @@ SECTIONS
 
   .cached_region : { *(.cached_region) }
 
+ . = 0x80080800;
+
   /* data segment */
   /*.data : { *(.cached_region) *(.non_cached_region) }*/
   .data : { *(.cached_region)}

@@ -7,10 +7,17 @@
 // ID: PROJ-??
 
 #include <stdint.h>
+typedef struct {
+uint64_t variable_1;
+uint32_t variable_2;
+uint8_t  variable_3;
+uint64_t variable_4;
+} mystruct_t;
 
 uint64_t variable_A __attribute__((section(".non_cached_region")));
 uint64_t variable_B __attribute__((section(".non_cached_region")));
-uint64_t variable_C __attribute__((section(".cached_region")));
+mystruct_t  variable_C __attribute__((section(".cached_region")));
+uint64_t variable_D;
 
 void read_non_cacheable_locations()
 {
