@@ -55,7 +55,7 @@ int main()
   asm volatile ("csrr %[reg], mhartid" : [reg] "=r" (mhartid));
 
   if(mhartid == 1){
-    if((variable_A == 4)&&(variable_B == 6)){
+    if((variable_A == 4)&&(variable_B == 9)){
       return 0;
     }
   }else{
