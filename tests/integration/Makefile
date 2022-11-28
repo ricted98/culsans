@@ -33,7 +33,8 @@ libs/libintegr.a: $(OBJS) libs
 	$(RV_AR) -rcs $@ $(OBJS)
 
 sw : libs/libintegr.a
-	for d in $(TESTLIST); do make -C $$d sw; done
+	#for d in $(TESTLIST); do make -C $$d sw; done
+	for d in $(TESTLIST); do make -C $$d all; done
 
 # Compile the RTL
 
