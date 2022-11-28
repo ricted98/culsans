@@ -8,6 +8,10 @@
 
 #include "dummy.h"
 
+void thread_entry(int cid, int nc){
+    dummy();
+}
+
 int main()
 {
     return dummy();

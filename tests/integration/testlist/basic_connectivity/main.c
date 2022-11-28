@@ -8,8 +8,8 @@
 
 #include <stdint.h>
 
-volatile uint64_t variable_A = 1;
-volatile uint64_t variable_B = 2;
+volatile uint64_t variable_A = 2;
+volatile uint64_t variable_B = 3;
 // global variables are in shared memory space
 
 
@@ -20,11 +20,11 @@ void basic_connectivity()
 
   uint64_t core_local_variable = 0;
 
-  if(mhartid == 0){
+  if(mhartid == 1){
       core_local_variable =  variable_A;
       variable_A = core_local_variable * core_local_variable;
   }
-  if(mhartid == 1){
+  if(mhartid == 0){
       core_local_variable =  variable_B;
       variable_B = core_local_variable * core_local_variable;
   }
@@ -55,7 +55,7 @@ int main()
   asm volatile ("csrr %[reg], mhartid" : [reg] "=r" (mhartid));
 
   if(mhartid == 1){
-    if((variable_A == 1)&&(variable_B == 4)){
+    if((variable_A == 4)&&(variable_B == 6)){
       return 0;
     }
   }else{
