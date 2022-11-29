@@ -34,16 +34,19 @@ void thread_entry(int cid, int nc){ // Core ID, Number of Cores
 
   static volatile int count;
 
-   __sync_synchronize();
-
    while(__sync_fetch_and_add(&count, 0) != cid)
      ;
 
    // critical section
    basic_connectivity();
 
-   if (__sync_fetch_and_add(&count, 1) == nc-1)
-       count = 0;
+   __sync_fetch_and_add(&count, 1);
+
+   while(__sync_fetch_and_add(&count, 0) != nc)
+     ;
+
+   if (cid == 0)
+     count = 0;
 
    __sync_synchronize();
 }
