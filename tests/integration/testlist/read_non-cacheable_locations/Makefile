@@ -74,5 +74,6 @@ clean:
 	rm -rf *.dasm
 	rm -rf $(TEST_REPORT)
 	rm -rf transcript
+	rm -rf main.map
 
 .PHONY: all gui sw dis sw clean

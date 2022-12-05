@@ -42,11 +42,16 @@ SECTIONS
 
   . = 0x80080000;
 
-  .cached_region : { *(.cached_region) }
+  .cached_region_1 : { *(.cached_region_1) }
+  
+  . = 0x800C0000;
+  
+    .cached_region_2 : { *(.cached_region_2) }
 
   /* data segment */
   /*.data : { *(.cached_region) *(.non_cached_region) }*/
-  .data : { *(.cached_region)}
+  /*.data : { *(.cached_region)}*/
+  .data : { *(.cached_region_2)}
   /*.data : { *(.data) }*/
 
   .sdata : {
