@@ -8,9 +8,17 @@
 
 #include <stdint.h>
 
-uint64_t variable_A __attribute__((section(".non_cached_region")));
-uint64_t variable_B __attribute__((section(".non_cached_region")));
-uint64_t variable_C __attribute__((section(".cached_region")));
+#define number_of_cache_lines 32764
+
+struct cacheline_t{
+  uint64_t cacheline[2];
+};
+
+struct cacheline_t non_cached_cachelines[number_of_cache_lines] __attribute__((section(".non_cached_region")));
+
+//uint64_t variable_A __attribute__((section(".non_cached_region")));
+//uint64_t variable_B __attribute__((section(".non_cached_region")));
+//uint64_t variable_C __attribute__((section(".cached_region")));
 
 void read_non_cacheable_locations()
 {
@@ -21,19 +29,19 @@ void read_non_cacheable_locations()
 
   if(mhartid == 0){
       core_local_variable = 1;
-      variable_A = core_local_variable;
+      //variable_A = core_local_variable;
+      non_cached_cachelines[0].cacheline[0] = core_local_variable;
   }
   if(mhartid == 1){
       core_local_variable = 2;
-      variable_B = core_local_variable;
+      //variable_B = core_local_variable;
+      non_cached_cachelines[1].cacheline[0] = core_local_variable;
   }
 }
 
 void thread_entry(int cid, int nc){ // Core ID, Number of Cores
 
-  static volatile int count;
-
-   __sync_synchronize();
+   static volatile int count;
 
    while(__sync_fetch_and_add(&count, 0) != cid)
      ;
@@ -41,8 +49,13 @@ void thread_entry(int cid, int nc){ // Core ID, Number of Cores
    // critical section
    read_non_cacheable_locations();
 
-   if (__sync_fetch_and_add(&count, 1) == nc-1)
-       count = 0;
+   __sync_fetch_and_add(&count, 1);
+
+   while(__sync_fetch_and_add(&count, 0) != nc)
+     ;
+
+   if (cid == 0)
+     count = 0;
 
    __sync_synchronize();
 }
@@ -54,7 +67,8 @@ int main()
   asm volatile ("csrr %[reg], mhartid" : [reg] "=r" (mhartid));
 
   if(mhartid == 1){
-    if((variable_A == 1)&&(variable_B == 2)){
+    //if((variable_A == 1)&&(variable_B == 2)){
+    if((non_cached_cachelines[0].cacheline[0] == 1)&&(non_cached_cachelines[1].cacheline[0] == 2)){
       return 0;
     }
   }else{
