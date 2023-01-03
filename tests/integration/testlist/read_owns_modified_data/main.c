@@ -15,7 +15,7 @@ struct cacheline_t{
   v_type cacheline[2];
 };
 
-struct cacheline_t non_cached_cachelines[number_of_cache_lines] __attribute__((section(".non_cached_region")));
+struct cacheline_t non_cached_cachelines[number_of_cache_lines] __attribute__((section(".cached_region_1")));
 
 void read_non_cacheable_locations()
 {
@@ -28,11 +28,11 @@ void read_non_cacheable_locations()
         core_local_variable = 1;
         for(int i = 0; i < number_of_cache_lines; i++){
   	        for(int j = 0; j < number_of_cache_lines; j++){
-  		        core_local_variable = non_cached_cachelines[i].cacheline[j];
+  		        non_cached_cachelines[i].cacheline[j] = i+1;
       	    }
         }
     }
-    if(mhartid == 1){
+    if(mhartid == 0){ // same core
         core_local_variable = 2;
         for(int i = 0; i < number_of_cache_lines; i++){
             for(int j = 0; j < number_of_cache_lines; j++){
