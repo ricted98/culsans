@@ -18,7 +18,7 @@
 #include <fesvr/elfloader.h>
 #include <fesvr/htif.h>
 
-#define MAX_SIM_TIME 100000
+#define MAX_SIM_TIME 100000000
 #define RST_TIME 5
 vluint64_t sim_time = 0;
 
