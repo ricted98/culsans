@@ -82,7 +82,7 @@ AXI_PKG := src/axi_pkg.sv \
 						src/snoop_pkg.sv
 AXI_PKG := $(addprefix $(AXI_DIR)/, $(AXI_PKG))
 
-AXI_SRC := src/axi_cut.sv                                                 \
+AXI_SRC := src/axi_cut.sv                                                	 \
 	          src/axi_join.sv                                                \
 	          src/axi_delayer.sv                                             \
 	          src/axi_to_axi_lite.sv                                         \
@@ -91,13 +91,16 @@ AXI_SRC := src/axi_cut.sv                                                 \
 	          src/axi_err_slv.sv                                             \
 	          src/axi_mux.sv                                                 \
 	          src/axi_demux.sv                                               \
-						src/axi_multicut.sv                                            \
-	          src/axi_intf.sv \
-	          src/ace_intf.sv \
-	          src/snoop_intf.sv \
-	          src/axi_xbar.sv \
-	          src/ace_trs_dec.sv \
-	          src/ace_ccu_top.sv
+			  src/axi_multicut.sv                                            \
+	          src/axi_intf.sv 												 \
+	          src/ace_intf.sv 												 \
+	          src/snoop_intf.sv  											 \
+	          src/axi_xbar.sv												 \
+	          src/ace_trs_dec.sv											 \
+			  src/ccu_fsm.sv												 \
+	          src/ace_ccu_top.sv											 \
+			  src/axi_test.sv												 \
+			  src/ace_test.sv												 
 AXI_SRC := $(addprefix $(AXI_DIR)/, $(AXI_SRC))
 
 AXI_INCDIR := $(AXI_DIR)/include
@@ -107,14 +110,14 @@ AXI_INCDIR := $(foreach dir, ${AXI_INCDIR}, +incdir+$(dir))
 
 # CVA6 packages
 CVA6_PKG := core/include/cv64a6_imafdc_sv39_config_pkg.sv
-CVA6_PKG += core/include/riscv_pkg.sv                              \
+CVA6_PKG += core/include/riscv_pkg.sv                             	 \
               corev_apu/riscv-dbg/src/dm_pkg.sv                      \
               core/include/ariane_pkg.sv                             \
               core/include/ariane_rvfi_pkg.sv                        \
               core/include/wt_cache_pkg.sv                           \
               core/include/cvxif_pkg.sv                              \
               corev_apu/register_interface/src/reg_intf.sv           \
-							corev_apu/tb/rvfi_pkg.sv                               \
+			  corev_apu/tb/rvfi_pkg.sv                               \
               core/include/ariane_axi_pkg.sv                         \
               core/include/ariane_ace_pkg.sv                         \
               core/include/std_cache_pkg.sv                          \
@@ -168,8 +171,8 @@ CVA6_SRC := $(filter-out $(CVA6_DIR)/core/ariane_regfile.sv, $(wildcard $(CVA6_D
 	        $(CVA6_DIR)/corev_apu/src/tech_cells_generic/src/rtl/tc_sram.sv                          \
 	        $(CVA6_DIR)/corev_apu/src/tech_cells_generic/src/rtl/tc_clk.sv                           \
 	        $(CVA6_DIR)/corev_apu/tb/rvfi_tracer.sv                                                  \
+			$(CVA6_DIR)/corev_apu/tb/common_verification/src/*.sv  \
 	        $(CVA6_DIR)/corev_apu/tb/common/uart.sv
-
 #	        $(CVA6_DIR)/corev_apu/tb/common/SimDTM.sv                                                \
 #	        $(CVA6_DIR)/corev_apu/tb/common/SimJTAG.sv
 #CVA6_SRC := $(addprefix $(CVA6_DIR)/, $(CVA6_SRC))
