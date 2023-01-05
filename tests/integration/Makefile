@@ -98,9 +98,7 @@ AXI_SRC := src/axi_cut.sv                                                	 \
 	          src/axi_xbar.sv												 \
 	          src/ace_trs_dec.sv											 \
 			  src/ccu_fsm.sv												 \
-	          src/ace_ccu_top.sv											 \
-			  src/axi_test.sv												 \
-			  src/ace_test.sv												 
+	          src/ace_ccu_top.sv											 												 											 												 
 AXI_SRC := $(addprefix $(AXI_DIR)/, $(AXI_SRC))
 
 AXI_INCDIR := $(AXI_DIR)/include
@@ -171,9 +169,9 @@ CVA6_SRC := $(filter-out $(CVA6_DIR)/core/ariane_regfile.sv, $(wildcard $(CVA6_D
 	        $(CVA6_DIR)/corev_apu/src/tech_cells_generic/src/rtl/tc_sram.sv                          \
 	        $(CVA6_DIR)/corev_apu/src/tech_cells_generic/src/rtl/tc_clk.sv                           \
 	        $(CVA6_DIR)/corev_apu/tb/rvfi_tracer.sv                                                  \
-			$(CVA6_DIR)/corev_apu/tb/common_verification/src/*.sv  \
+			$(CVA6_DIR)/corev_apu/tb/common_verification/src/rand_id_queue.sv  \
 	        $(CVA6_DIR)/corev_apu/tb/common/uart.sv
-#	        $(CVA6_DIR)/corev_apu/tb/common/SimDTM.sv                                                \
+#	        $(CVA6_DIR)/corev_apu/tb/common/SimDTM.sv                                                
 #	        $(CVA6_DIR)/corev_apu/tb/common/SimJTAG.sv
 #CVA6_SRC := $(addprefix $(CVA6_DIR)/, $(CVA6_SRC))
 
