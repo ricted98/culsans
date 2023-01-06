@@ -420,8 +420,10 @@ module ccu_slave_logger #(
   input logic     r_valid_i,
   input logic     r_ready_i
 );
+
+  typedef ariane_axi::id_t  id;
   // id width from channel
-  localparam int unsigned IdWidth = 6;//$bits(aw_chan_i.id);
+  localparam int unsigned IdWidth = $bits(id);
   localparam int unsigned NoIds   = 2**IdWidth;
 
   // queues for writes and reads

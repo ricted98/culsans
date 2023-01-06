@@ -205,6 +205,8 @@ module culsans_top #(
 
   ariane_axi::req_t    dm_axi_m_req;
   ariane_axi::resp_t   dm_axi_m_resp;
+  ariane_axi::req_t    slv_req;
+  ariane_axi::resp_t   slv_resp;
 
   logic                dm_slave_req;
   logic                dm_slave_we;
@@ -281,6 +283,8 @@ module culsans_top #(
 
   `AXI_ASSIGN_FROM_REQ(to_xbar[1], dm_axi_m_req)
   `AXI_ASSIGN_TO_RESP(dm_axi_m_resp, to_xbar[1])
+  `AXI_ASSIGN_TO_REQ(slv_req, to_xbar[0])
+  `AXI_ASSIGN_TO_RESP(slv_resp, to_xbar[0])
 
   axi_adapter #(
     .DATA_WIDTH            ( AXI_DATA_WIDTH            ),
@@ -780,25 +784,25 @@ module culsans_top #(
       .rst_ni     ( rst_ni       ),    // Asynchronous reset active low, when `1'b0` no sampling
       .end_sim_i  ( '0 ),
       // AW channel
-      .aw_chan_i  ( dm_axi_m_req.aw        ),
-      .aw_valid_i ( dm_axi_m_req.aw_valid  ),
-      .aw_ready_i ( dm_axi_m_resp.aw_ready ),
+      .aw_chan_i  ( slv_req.aw        ),
+      .aw_valid_i ( slv_req.aw_valid  ),
+      .aw_ready_i ( slv_resp.aw_ready ),
       //  W channel
-      .w_chan_i   ( dm_axi_m_req.w         ),
-      .w_valid_i  ( dm_axi_m_req.w_valid   ),
-      .w_ready_i  ( dm_axi_m_resp.w_ready  ),
+      .w_chan_i   ( slv_req.w         ),
+      .w_valid_i  ( slv_req.w_valid   ),
+      .w_ready_i  ( slv_resp.w_ready  ),
       //  B channel
-      .b_chan_i   ( dm_axi_m_resp.b        ),
-      .b_valid_i  ( dm_axi_m_resp.b_valid  ),
-      .b_ready_i  ( dm_axi_m_req.b_ready   ),
+      .b_chan_i   ( slv_resp.b        ),
+      .b_valid_i  ( slv_resp.b_valid  ),
+      .b_ready_i  ( slv_req.b_ready   ),
       // AR channel
-      .ar_chan_i  ( dm_axi_m_req.ar        ),
-      .ar_valid_i ( dm_axi_m_req.ar_valid  ),
-      .ar_ready_i ( dm_axi_m_resp.ar_ready ),
+      .ar_chan_i  ( slv_req.ar        ),
+      .ar_valid_i ( slv_req.ar_valid  ),
+      .ar_ready_i ( slv_resp.ar_ready ),
       //  R channel
-      .r_chan_i   ( dm_axi_m_resp.r        ),
-      .r_valid_i  ( dm_axi_m_resp.r_valid  ),
-      .r_ready_i  ( dm_axi_m_req.r_ready   )
+      .r_chan_i   ( slv_resp.r        ),
+      .r_valid_i  ( slv_resp.r_valid  ),
+      .r_ready_i  ( slv_req.r_ready   )
     );
 
   // -------------
