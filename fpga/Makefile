@@ -234,7 +234,7 @@ RTL_NBCORES_DEF = "localparam NB_CORES = $(NB_CORES);"
 .PHONY: $(CULSANS_DIR)/include/culsans_pkg.sv
 $(CULSANS_DIR)/include/culsans_pkg.sv:
 	@if ! grep -q $(RTL_NBCORES_DEF) $@; then \
-		sed -i 's/localparam NB_CORES = [0-9]\+;/localparam NB_CORES = $(NB_CORES);/' ../../rtl/include/culsans_pkg.sv; \
+		sed -i 's/localparam NB_CORES = [0-9]\+;/localparam NB_CORES = $(NB_CORES);/' $(CULSANS_DIR)/include/culsans_pkg.sv;   \
 	fi
 
 .PHONY: $(CVA6_DIR)/corev_apu/rv_plic/rtl/plic_regmap.sv
