@@ -412,8 +412,8 @@ if (riscv::XLEN==32 ) begin
 
     assign master[ariane_soc::Debug].r_user ='0;
     assign master[ariane_soc::Debug].b_user ='0;
- 
-    xlnx_axi_dwidth_converter_dm_slave  i_axi_dwidth_converter_dm_slave( 
+
+    xlnx_axi_dwidth_converter_dm_slave  i_axi_dwidth_converter_dm_slave(
         .s_axi_aclk(clk),
         .s_axi_aresetn(ndmreset_n),
         .s_axi_awid(master[ariane_soc::Debug].aw_id),
@@ -549,7 +549,7 @@ end else begin
 
     assign master[ariane_soc::Debug].r_ready = master_to_dm[0].r_ready;
 
-end 
+end
 
 
 
@@ -592,7 +592,7 @@ if (riscv::XLEN==32 ) begin
 
     logic [31 : 0] dm_master_s_rdata;
 
-    assign dm_axi_m_resp.r.data = {32'h0000_0000, dm_master_s_rdata}; 
+    assign dm_axi_m_resp.r.data = {32'h0000_0000, dm_master_s_rdata};
 
     assign to_xbar[1].aw_user = '0;
     assign to_xbar[1].w_user = '0;
@@ -602,7 +602,7 @@ if (riscv::XLEN==32 ) begin
     assign to_xbar[1].ar_id = dm_axi_m_req.ar.id;
     assign to_xbar[1].aw_atop = dm_axi_m_req.aw.atop;
 
-    xlnx_axi_dwidth_converter_dm_master  i_axi_dwidth_converter_dm_master( 
+    xlnx_axi_dwidth_converter_dm_master  i_axi_dwidth_converter_dm_master(
         .s_axi_aclk(clk),
         .s_axi_aresetn(ndmreset_n),
         .s_axi_awid(dm_axi_m_req.aw.id),
@@ -778,19 +778,89 @@ end
    xlnx_ila i_ila
      (
       .clk (clk),
-      .probe0 (to_xbar[0].aw_addr[31:0]),
-      .probe1 (to_xbar[0].ar_addr[31:0]),
-      .probe2 (to_xbar[0].w_data[31:0]),
-      .probe3 (to_xbar[0].r_data[31:0]),
-      .probe4 (core_to_CCU[0].aw_addr[31:0]),
-      .probe5 (core_to_CCU[0].ar_addr[31:0]),
-      .probe6 (core_to_CCU[1].aw_addr[31:0]),
-      .probe7 (core_to_CCU[1].ar_addr[31:0]),
-      .probe8 ({core_to_CCU[0].ar_lock, core_to_CCU[0].aw_valid, core_to_CCU[0].aw_ready, core_to_CCU[0].w_valid, core_to_CCU[0].w_ready, core_to_CCU[0].ar_valid, core_to_CCU[0].ar_ready, core_to_CCU[0].r_ready, core_to_CCU[0].r_valid, core_to_CCU[0].b_valid, core_to_CCU[0].b_ready, core_to_CCU[0].w_last, core_to_CCU[0].r_last}),
-      .probe9 ({core_to_CCU[1].ar_lock, core_to_CCU[1].aw_valid, core_to_CCU[1].aw_ready, core_to_CCU[1].w_valid, core_to_CCU[1].w_ready, core_to_CCU[1].ar_valid, core_to_CCU[1].ar_ready, core_to_CCU[1].r_ready, core_to_CCU[1].r_valid, core_to_CCU[1].b_valid, core_to_CCU[1].b_ready, core_to_CCU[1].w_last, core_to_CCU[1].r_last}),
-      .probe10 ({core_to_CCU[0].ar_id, core_to_CCU[0].aw_id, core_to_CCU[0].r_resp, core_to_CCU[0].b_resp, core_to_CCU[1].ar_id, core_to_CCU[1].aw_id, core_to_CCU[1].r_resp, core_to_CCU[1].b_resp}),
-      .probe11 ({to_xbar[0].ar_id, to_xbar[0].aw_id, to_xbar[0].r_resp, to_xbar[0].b_resp}),
-      .probe12 ({CCU_to_core[0].ac_snoop, CCU_to_core[0].ac_valid, CCU_to_core[0].ac_ready, CCU_to_core[0].cr_valid, CCU_to_core[0].cr_ready, CCU_to_core[0].cd_valid, CCU_to_core[0].cd_ready, CCU_to_core[1].ac_snoop, CCU_to_core[1].ac_valid, CCU_to_core[1].ac_ready, CCU_to_core[1].cr_valid, CCU_to_core[1].cr_ready, CCU_to_core[1].cd_valid, CCU_to_core[1].cd_ready, to_xbar[0].ar_lock, to_xbar[0].aw_valid, to_xbar[0].aw_ready, to_xbar[0].w_valid, to_xbar[0].w_ready, to_xbar[0].ar_valid, to_xbar[0].ar_ready, to_xbar[0].r_ready, to_xbar[0].r_valid, to_xbar[0].b_valid, to_xbar[0].b_ready, to_xbar[0].w_last, to_xbar[0].r_last, ipi, timer_irq, irq})
+      .probe0  (to_xbar[0].aw_addr[31:0]),
+      .probe1  (to_xbar[0].ar_addr[31:0]),
+      .probe2  (to_xbar[0].w_data[31:0]),
+      .probe3  (to_xbar[0].r_data[31:0]),
+      .probe4  (core_to_CCU[0].aw_addr[31:0]),
+      .probe5  (core_to_CCU[0].ar_addr[31:0]),
+      .probe6  (core_to_CCU[1].aw_addr[31:0]),
+      .probe7  (core_to_CCU[1].ar_addr[31:0]),
+
+      .probe8  ({core_to_CCU[0].ar_lock,
+                 core_to_CCU[0].aw_valid,
+                 core_to_CCU[0].aw_ready,
+                 core_to_CCU[0].w_valid,
+                 core_to_CCU[0].w_ready,
+                 core_to_CCU[0].ar_valid,
+                 core_to_CCU[0].ar_ready,
+                 core_to_CCU[0].r_ready,
+                 core_to_CCU[0].r_valid,
+                 core_to_CCU[0].b_valid,
+                 core_to_CCU[0].b_ready,
+                 core_to_CCU[0].w_last,
+                 core_to_CCU[0].r_last}),
+
+      .probe9  ({core_to_CCU[1].ar_lock,
+                 core_to_CCU[1].aw_valid,
+                 core_to_CCU[1].aw_ready,
+                 core_to_CCU[1].w_valid,
+                 core_to_CCU[1].w_ready,
+                 core_to_CCU[1].ar_valid,
+                 core_to_CCU[1].ar_ready,
+                 core_to_CCU[1].r_ready,
+                 core_to_CCU[1].r_valid,
+                 core_to_CCU[1].b_valid,
+                 core_to_CCU[1].b_ready,
+                 core_to_CCU[1].w_last,
+                 core_to_CCU[1].r_last}),
+
+      .probe10 ({core_to_CCU[0].ar_id,
+                 core_to_CCU[0].aw_id,
+                 core_to_CCU[0].r_resp,
+                 core_to_CCU[0].b_resp,
+                 core_to_CCU[1].ar_id,
+                 core_to_CCU[1].aw_id,
+                 core_to_CCU[1].r_resp,
+                 core_to_CCU[1].b_resp}),
+
+      .probe11 ({to_xbar[0].ar_id,
+                 to_xbar[0].aw_id,
+                 to_xbar[0].r_resp,
+                 to_xbar[0].b_resp,
+                 i_ccu.i_ccu_top.fsm.state_q
+                 }),
+
+      .probe12 ({CCU_to_core[0].ac_snoop,
+                 CCU_to_core[0].ac_valid,
+                 CCU_to_core[0].ac_ready,
+                 CCU_to_core[0].cr_valid,
+                 CCU_to_core[0].cr_ready,
+                 CCU_to_core[0].cd_valid,
+                 CCU_to_core[0].cd_ready,
+                 CCU_to_core[1].ac_snoop,
+                 CCU_to_core[1].ac_valid,
+                 CCU_to_core[1].ac_ready,
+                 CCU_to_core[1].cr_valid,
+                 CCU_to_core[1].cr_ready,
+                 CCU_to_core[1].cd_valid,
+                 CCU_to_core[1].cd_ready,
+                 to_xbar[0].ar_lock,
+                 to_xbar[0].aw_valid,
+                 to_xbar[0].aw_ready,
+                 to_xbar[0].w_valid,
+                 to_xbar[0].w_ready,
+                 to_xbar[0].ar_valid,
+                 to_xbar[0].ar_ready,
+                 to_xbar[0].r_ready,
+                 to_xbar[0].r_valid,
+                 to_xbar[0].b_valid,
+                 to_xbar[0].b_ready,
+                 to_xbar[0].w_last,
+                 to_xbar[0].r_last,
+                 ipi,
+                 timer_irq,
+                 irq})
       );
 
 // ---------------
