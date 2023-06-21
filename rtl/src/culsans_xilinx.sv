@@ -774,95 +774,6 @@ end
     .mst_ports             ( to_xbar[0]  )
   );
 
-
-   xlnx_ila i_ila
-     (
-      .clk (clk),
-      .probe0  (to_xbar[0].aw_addr[31:0]),
-      .probe1  (to_xbar[0].ar_addr[31:0]),
-      .probe2  (to_xbar[0].w_data[31:0]),
-      .probe3  (to_xbar[0].r_data[31:0]),
-      .probe4  (core_to_CCU[0].aw_addr[31:0]),
-      .probe5  (core_to_CCU[0].ar_addr[31:0]),
-      .probe6  (core_to_CCU[1].aw_addr[31:0]),
-      .probe7  (core_to_CCU[1].ar_addr[31:0]),
-
-      .probe8  ({core_to_CCU[0].ar_lock,
-                 core_to_CCU[0].aw_valid,
-                 core_to_CCU[0].aw_ready,
-                 core_to_CCU[0].w_valid,
-                 core_to_CCU[0].w_ready,
-                 core_to_CCU[0].ar_valid,
-                 core_to_CCU[0].ar_ready,
-                 core_to_CCU[0].r_ready,
-                 core_to_CCU[0].r_valid,
-                 core_to_CCU[0].b_valid,
-                 core_to_CCU[0].b_ready,
-                 core_to_CCU[0].w_last,
-                 core_to_CCU[0].r_last}),
-
-      .probe9  ({core_to_CCU[1].ar_lock,
-                 core_to_CCU[1].aw_valid,
-                 core_to_CCU[1].aw_ready,
-                 core_to_CCU[1].w_valid,
-                 core_to_CCU[1].w_ready,
-                 core_to_CCU[1].ar_valid,
-                 core_to_CCU[1].ar_ready,
-                 core_to_CCU[1].r_ready,
-                 core_to_CCU[1].r_valid,
-                 core_to_CCU[1].b_valid,
-                 core_to_CCU[1].b_ready,
-                 core_to_CCU[1].w_last,
-                 core_to_CCU[1].r_last}),
-
-      .probe10 ({core_to_CCU[0].ar_id,
-                 core_to_CCU[0].aw_id,
-                 core_to_CCU[0].r_resp,
-                 core_to_CCU[0].b_resp,
-                 core_to_CCU[1].ar_id,
-                 core_to_CCU[1].aw_id,
-                 core_to_CCU[1].r_resp,
-                 core_to_CCU[1].b_resp}),
-
-      .probe11 ({to_xbar[0].ar_id,
-                 to_xbar[0].aw_id,
-                 to_xbar[0].r_resp,
-                 to_xbar[0].b_resp,
-                 i_ccu.i_ccu_top.fsm.state_q
-                 }),
-
-      .probe12 ({CCU_to_core[0].ac_snoop,
-                 CCU_to_core[0].ac_valid,
-                 CCU_to_core[0].ac_ready,
-                 CCU_to_core[0].cr_valid,
-                 CCU_to_core[0].cr_ready,
-                 CCU_to_core[0].cd_valid,
-                 CCU_to_core[0].cd_ready,
-                 CCU_to_core[1].ac_snoop,
-                 CCU_to_core[1].ac_valid,
-                 CCU_to_core[1].ac_ready,
-                 CCU_to_core[1].cr_valid,
-                 CCU_to_core[1].cr_ready,
-                 CCU_to_core[1].cd_valid,
-                 CCU_to_core[1].cd_ready,
-                 to_xbar[0].ar_lock,
-                 to_xbar[0].aw_valid,
-                 to_xbar[0].aw_ready,
-                 to_xbar[0].w_valid,
-                 to_xbar[0].w_ready,
-                 to_xbar[0].ar_valid,
-                 to_xbar[0].ar_ready,
-                 to_xbar[0].r_ready,
-                 to_xbar[0].r_valid,
-                 to_xbar[0].b_valid,
-                 to_xbar[0].b_ready,
-                 to_xbar[0].w_last,
-                 to_xbar[0].r_last,
-                 ipi,
-                 timer_irq,
-                 irq})
-      );
-
 // ---------------
 // CLINT
 // ---------------
@@ -1055,6 +966,13 @@ AXI_BUS #(
     .AXI_USER_WIDTH ( AxiUserWidth     )
 ) dram();
 
+AXI_BUS #(
+    .AXI_ADDR_WIDTH ( AxiAddrWidth     ),
+    .AXI_DATA_WIDTH ( AxiDataWidth     ),
+    .AXI_ID_WIDTH   ( AxiIdWidthSlaves ),
+    .AXI_USER_WIDTH ( AxiUserWidth     )
+) to_llc();
+
 axi_riscv_atomics_wrap #(
     .AXI_ADDR_WIDTH ( AxiAddrWidth     ),
     .AXI_DATA_WIDTH ( AxiDataWidth     ),
@@ -1066,8 +984,91 @@ axi_riscv_atomics_wrap #(
     .clk_i  ( clk                      ),
     .rst_ni ( ndmreset_n               ),
     .slv    ( master[ariane_soc::DRAM] ),
-    .mst    ( dram                     )
+    .mst    ( to_llc                   )
 );
+
+localparam int unsigned   AxiStrbWidth = AxiDataWidth / 32'd8;
+typedef logic [AxiIdWidthSlaves-1:0]     axi_slv_id_t;
+typedef logic [AxiIdWidthSlaves:0]       axi_mst_id_t;
+typedef logic [AxiAddrWidth-1:0]   axi_addr_t;
+typedef logic [AxiDataWidth-1:0]   axi_data_t;
+typedef logic [AxiStrbWidth-1:0]   axi_strb_t;
+typedef logic [AxiUserWidth-1:0]   axi_user_t;
+
+`AXI_TYPEDEF_AW_CHAN_T(axi_slv_aw_t, axi_addr_t, axi_slv_id_t, axi_user_t)
+`AXI_TYPEDEF_AW_CHAN_T(axi_mst_aw_t, axi_addr_t, axi_mst_id_t, axi_user_t)
+`AXI_TYPEDEF_W_CHAN_T(axi_w_t, axi_data_t, axi_strb_t, axi_user_t)
+`AXI_TYPEDEF_B_CHAN_T(axi_slv_b_t, axi_slv_id_t, axi_user_t)
+`AXI_TYPEDEF_B_CHAN_T(axi_mst_b_t, axi_mst_id_t, axi_user_t)
+`AXI_TYPEDEF_AR_CHAN_T(axi_slv_ar_t, axi_addr_t, axi_slv_id_t, axi_user_t)
+`AXI_TYPEDEF_AR_CHAN_T(axi_mst_ar_t, axi_addr_t, axi_mst_id_t, axi_user_t)
+`AXI_TYPEDEF_R_CHAN_T(axi_slv_r_t, axi_data_t, axi_slv_id_t, axi_user_t)
+`AXI_TYPEDEF_R_CHAN_T(axi_mst_r_t, axi_data_t, axi_mst_id_t, axi_user_t)
+
+`AXI_TYPEDEF_REQ_T(axi_slv_req_t, axi_slv_aw_t, axi_w_t, axi_slv_ar_t)
+`AXI_TYPEDEF_RESP_T(axi_slv_resp_t, axi_slv_b_t, axi_slv_r_t)
+`AXI_TYPEDEF_REQ_T(axi_mst_req_t, axi_mst_aw_t, axi_w_t, axi_mst_ar_t)
+`AXI_TYPEDEF_RESP_T(axi_mst_resp_t, axi_mst_b_t, axi_mst_r_t)
+
+`REG_BUS_TYPEDEF_ALL(conf, logic [31:0], logic [31:0], logic [3:0])
+
+typedef struct                  packed {
+   int unsigned                 idx;
+   axi_addr_t   start_addr;
+   axi_addr_t   end_addr;
+} rule_full_t;
+
+axi_llc_pkg::events_t llc_events;
+axi_slv_req_t  axi_cpu_req;
+axi_slv_resp_t axi_cpu_res;
+axi_mst_req_t  axi_mem_req;
+axi_mst_resp_t axi_mem_res;
+conf_req_t     reg_cfg_req;
+conf_rsp_t     reg_cfg_rsp;
+
+assign reg_cfg_req = '0;
+
+localparam axi_addr_t SpmRegionStart     = axi_addr_t'(0);
+localparam axi_addr_t SpmRegionLength    = 0;
+localparam axi_addr_t L2CachedRegionStart  = axi_addr_t'(32'h8000_0000);
+localparam axi_addr_t L2CachedRegionLength = axi_addr_t'(32'h4000_0000);
+
+`AXI_ASSIGN_TO_REQ(axi_cpu_req, to_llc)
+`AXI_ASSIGN_FROM_RESP(to_llc, axi_cpu_res)
+
+axi_llc_reg_wrap #(
+   .SetAssociativity ( 32'd8              ),
+   .NumLines         ( 32'd256            ),
+   .NumBlocks        ( 32'd8              ),
+   .AxiIdWidth       ( AxiIdWidthSlaves   ),
+   .AxiAddrWidth     ( AxiAddrWidth       ),
+   .AxiDataWidth     ( AxiDataWidth       ),
+   .AxiUserWidth     ( AxiUserWidth       ),
+   .slv_req_t        ( axi_slv_req_t      ),
+   .slv_resp_t       ( axi_slv_resp_t     ),
+   .mst_req_t        ( axi_mst_req_t      ),
+   .mst_resp_t       ( axi_mst_resp_t     ),
+   .reg_req_t        ( conf_req_t         ),
+   .reg_resp_t       ( conf_rsp_t         ),
+   .rule_full_t      ( rule_full_t        )
+) i_axi_llc (
+   .clk_i               ( clk                                    ),
+   .rst_ni              ( ndmreset_n                             ),
+   .test_i              ( 1'b0                                   ),
+   .slv_req_i           ( axi_cpu_req                            ),
+   .slv_resp_o          ( axi_cpu_res                            ),
+   .mst_req_o           ( axi_mem_req                            ),
+   .mst_resp_i          ( axi_mem_res                            ),
+   .conf_req_i          ( reg_cfg_req                            ),
+   .conf_resp_o         ( reg_cfg_rsp                            ),
+   .cached_start_addr_i ( L2CachedRegionStart                      ),
+   .cached_end_addr_i   ( L2CachedRegionStart + L2CachedRegionLength ),
+   .spm_start_addr_i    ( SpmRegionStart                         ),
+   .axi_llc_events_o    ( llc_events                             )
+);
+
+`AXI_ASSIGN_FROM_REQ(dram, axi_mem_req)
+`AXI_ASSIGN_TO_RESP(axi_mem_res, dram)
 
 `ifdef PROTOCOL_CHECKER
 logic pc_status;

@@ -39,7 +39,7 @@ read_ip { \
 }
 # read_ip xilinx/xlnx_protocol_checker/ip/xlnx_protocol_checker.xci
 
-set_property include_dirs { "src/axi_sd_bridge/include" "../modules/cva6/common/submodules/common_cells/include" "../modules/cva6/corev_apu/axi/include" "../modules/cva6/corev_apu/register_interface/include"} [current_fileset]
+set_property include_dirs { "src/axi_sd_bridge/include" "../modules/cva6/common/submodules/common_cells/include" "../modules/cva6/corev_apu/axi/include" "../modules/axi_llc/include" "../modules/cva6/corev_apu/register_interface/include"} [current_fileset]
 
 source scripts/add_sources.tcl
 

@@ -30,6 +30,7 @@ endif
 
 CVA6_DIR = ../modules/cva6
 AXI_DIR = $(CVA6_DIR)/corev_apu/axi/
+LLC_DIR = ../modules/axi_llc
 
 work-dir := work-fpga
 bit := $(work-dir)/culsans_xilinx.bit
@@ -49,7 +50,8 @@ ips-target := $(join $(addsuffix /ip/, $(addprefix $(ip-dir)/, $(basename $(ips)
 
 # Common cells
 
-COMMON_PKG := $(CVA6_DIR)/common/submodules/common_cells/src/cf_math_pkg.sv
+COMMON_PKG := $(CVA6_DIR)/common/submodules/common_cells/src/cf_math_pkg.sv \
+					$(CVA6_DIR)/common/submodules/common_cells/src/cb_filter_pkg.sv
 COMMON_SRC := $(CVA6_DIR)/common/submodules/common_cells/src/rstgen_bypass.sv                          \
 	        $(CVA6_DIR)/common/submodules/common_cells/src/rstgen.sv                                 \
 	        $(CVA6_DIR)/common/submodules/common_cells/src/stream_mux.sv                             \
@@ -79,7 +81,12 @@ COMMON_SRC := $(CVA6_DIR)/common/submodules/common_cells/src/rstgen_bypass.sv   
 	        $(CVA6_DIR)/common/submodules/common_cells/src/lfsr_16bit.sv                             \
 	        $(CVA6_DIR)/common/submodules/common_cells/src/delta_counter.sv                          \
 	        $(CVA6_DIR)/common/submodules/common_cells/src/counter.sv                                \
-	        $(CVA6_DIR)/common/submodules/common_cells/src/shift_reg.sv
+	        $(CVA6_DIR)/common/submodules/common_cells/src/shift_reg.sv                              \
+	        $(CVA6_DIR)/common/submodules/common_cells/src/cb_filter.sv                              \
+	        $(CVA6_DIR)/common/submodules/common_cells/src/sub_per_hash.sv                           \
+	        $(CVA6_DIR)/common/submodules/common_cells/src/stream_fifo.sv                            \
+	        $(CVA6_DIR)/common/submodules/common_cells/src/stream_xbar.sv                            \
+	        $(CVA6_DIR)/common/submodules/common_cells/src/onehot_to_bin.sv
 
 # AXI
 
@@ -102,6 +109,7 @@ AXI_SRC := src/axi_cut.sv                                                 \
 	          src/axi_intf.sv \
 	          src/ace_intf.sv \
 	          src/snoop_intf.sv \
+	          src/axi_isolate.sv \
 	          src/axi_xbar.sv \
 	          src/ace_trs_dec.sv \
 	          src/ccu_fsm.sv \
@@ -110,6 +118,34 @@ AXI_SRC := $(addprefix $(AXI_DIR)/, $(AXI_SRC))
 
 #AXI_INCDIR := $(AXI_DIR)/include
 #AXI_INCDIR := $(foreach dir, ${AXI_INCDIR}, +incdir+$(dir))
+
+LLC_PKG := src/axi_llc_pkg.sv \
+						src/axi_llc_reg_pkg.sv
+LLC_PKG := $(addprefix $(LLC_DIR)/, $(LLC_PKG))
+
+LLC_SRC := src/axi_llc_burst_cutter.sv \
+            src/axi_llc_data_way.sv \
+            src/axi_llc_merge_unit.sv \
+            src/axi_llc_read_unit.sv \
+            src/axi_llc_reg_top.sv \
+            src/axi_llc_write_unit.sv \
+            src/eviction_refill/axi_llc_ax_master.sv \
+            src/eviction_refill/axi_llc_r_master.sv \
+            src/eviction_refill/axi_llc_w_master.sv \
+            src/hit_miss_detect/axi_llc_evict_box.sv \
+            src/hit_miss_detect/axi_llc_lock_box_bloom.sv \
+            src/hit_miss_detect/axi_llc_miss_counters.sv \
+            src/hit_miss_detect/axi_llc_tag_pattern_gen.sv \
+            src/axi_llc_chan_splitter.sv \
+            src/axi_llc_evict_unit.sv \
+            src/axi_llc_refill_unit.sv \
+            src/axi_llc_ways.sv \
+            src/hit_miss_detect/axi_llc_tag_store.sv \
+            src/axi_llc_config.sv \
+            src/axi_llc_hit_miss.sv \
+            src/axi_llc_top.sv \
+            src/axi_llc_reg_wrap.sv
+LLC_SRC := $(addprefix $(LLC_DIR)/, $(LLC_SRC))
 
 # CVA6
 
@@ -162,7 +198,8 @@ CVA6_SRC := $(filter-out $(CVA6_DIR)/core/ariane_regfile.sv, $(wildcard $(CVA6_D
 	        $(CVA6_DIR)/corev_apu/rv_plic/rtl/rv_plic_gateway.sv                                     \
 	        $(CVA6_DIR)/corev_apu/rv_plic/rtl/plic_regmap.sv                                         \
 	        $(CVA6_DIR)/corev_apu/rv_plic/rtl/plic_top.sv                                            \
-	        $(CVA6_DIR)/corev_apu/riscv-dbg/src/dmi_cdc.sv                                           \
+	        $(CVA6_DIR)/corev_apu/rv_plic/rtl/prim_subreg.sv                                         \
+					$(CVA6_DIR)/corev_apu/riscv-dbg/src/dmi_cdc.sv                                           \
 	        $(CVA6_DIR)/corev_apu/riscv-dbg/src/dmi_jtag.sv                                          \
 	        $(CVA6_DIR)/corev_apu/riscv-dbg/src/dmi_jtag_tap.sv                                      \
 	        $(CVA6_DIR)/corev_apu/riscv-dbg/src/dm_csrs.sv                                           \
@@ -242,19 +279,21 @@ $(CVA6_DIR)/corev_apu/rv_plic/rtl/plic_regmap.sv:
 	cd $$(dirname $@); \
 	python3 gen_plic_addrmap.py -t $$(($(NB_CORES)*2)) > plic_regmap.sv
 
-scripts/add_sources.tcl: $(COMMON_PKG) $(CVA6_PKG) $(AXI_PKG) $(CULSANS_PKG) $(COMMON_SRC) $(UART_SRC) $(UTIL) $(AXI_SRC) $(CVA6_SRC) $(CULSANS_SRC) $(COPRO_SRC)
+scripts/add_sources.tcl: $(COMMON_PKG) $(CVA6_PKG) $(AXI_PKG) $(LLC_PKG) $(CULSANS_PKG) $(COMMON_SRC) $(UART_SRC) $(UTIL) $(AXI_SRC) $(CVA6_SRC) $(LLC_SRC) $(CULSANS_SRC) $(COPRO_SRC)
 	make CORES=2 -C $(CVA6_DIR)/corev_apu/bootrom clean all
 	@echo "[FPGA] Generate sources"
 	@echo read_vhdl        {$(UART_SRC)}    > scripts/add_sources.tcl
 	@echo read_verilog -sv {$(COMMON_PKG)} >> scripts/add_sources.tcl
 	@echo read_verilog -sv {$(CVA6_PKG)} >> scripts/add_sources.tcl
 	@echo read_verilog -sv {$(AXI_PKG)} >> scripts/add_sources.tcl
+	@echo read_verilog -sv {$(LLC_PKG)} >> scripts/add_sources.tcl
 	@echo read_verilog -sv {$(CULSANS_PKG)} >> scripts/add_sources.tcl
 	@echo read_verilog -sv {$(filter-out $(FPGA_FILTER), $(COMMON_SRC))} 	   >> scripts/add_sources.tcl
 	@echo read_verilog -sv {$(filter-out $(FPGA_FILTER), $(UTIL))}     >> scripts/add_sources.tcl
 	@echo read_verilog -sv {$(filter-out $(FPGA_FILTER), $(COPRO_SRC))} >> scripts/add_sources.tcl
 	@echo read_verilog -sv {$(filter-out $(FPGA_FILTER), $(CVA6_SRC))} 	   >> scripts/add_sources.tcl
 	@echo read_verilog -sv {$(filter-out $(FPGA_FILTER), $(AXI_SRC))} 	   >> scripts/add_sources.tcl
+	@echo read_verilog -sv {$(filter-out $(FPGA_FILTER), $(LLC_SRC))} 	   >> scripts/add_sources.tcl
 	@echo read_verilog -sv {$(filter-out $(FPGA_FILTER), $(CULSANS_SRC))} 	   >> scripts/add_sources.tcl
 	@echo read_verilog -sv {$(FPGA_SRC)}   >> scripts/add_sources.tcl
 

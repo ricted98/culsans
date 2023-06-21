@@ -7,3 +7,6 @@
 [submodule "tests/litmus/litmus_src"]
 	path = tests/litmus/litmus_src
 	url = git@github.com:planvtech/cva6-litmus.git
+[submodule "modules/axi_llc"]
+	path = modules/axi_llc
+	url = https://github.com/pulp-platform/axi_llc.git
