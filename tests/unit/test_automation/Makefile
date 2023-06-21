@@ -46,6 +46,7 @@ VSIM_FLAGS += -classdebug
 VSIM_FLAGS += -permit_unmatched_virtual_intf # allow declaring a virtual interface without a matching instance of the real interface
 VSIM_FLAGS += +TESTNAME=$(TESTNAME)
 VSIM_FLAGS += +ENABLE_CCU_MON=$(ENABLE_CCU_MON)
+VSIM_FLAGS += -suppress 2879 # allow tasks to be called in "final" statement
 #VSIM_FLAGS += -coverage
 
 #UVM_FLAGS = +UVM_NO_RELNOTES +UVM_VERBOSITY=LOW

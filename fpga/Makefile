@@ -86,7 +86,8 @@ COMMON_SRC := $(CVA6_DIR)/common/submodules/common_cells/src/rstgen_bypass.sv   
 # AXI packages
 AXI_PKG := src/axi_pkg.sv \
 						src/ace_pkg.sv \
-						src/snoop_pkg.sv
+						src/snoop_pkg.sv \
+						src/ccu_pkg.sv
 AXI_PKG := $(addprefix $(AXI_DIR)/, $(AXI_PKG))
 
 AXI_SRC := src/axi_cut.sv                                                 \
