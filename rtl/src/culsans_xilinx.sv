@@ -962,7 +962,7 @@ logic                        s_axi_rready;
 AXI_BUS #(
     .AXI_ADDR_WIDTH ( AxiAddrWidth     ),
     .AXI_DATA_WIDTH ( AxiDataWidth     ),
-    .AXI_ID_WIDTH   ( AxiIdWidthSlaves ),
+    .AXI_ID_WIDTH   ( AxiIdWidthSlaves+1 ),
     .AXI_USER_WIDTH ( AxiUserWidth     )
 ) dram();
 
