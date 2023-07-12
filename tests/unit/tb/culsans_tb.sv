@@ -458,6 +458,7 @@ module culsans_tb
 
                 `WAIT_SIG(clk, rst_n)
                 `WAIT_CYC(clk, 300)
+                `WAIT_CYC(clk, 1500) // wait some more for LLC initialization
 
                 case (testname)
 
@@ -927,6 +928,7 @@ module culsans_tb
                         endcase
 
                         rep_cnt   = 1000;
+                        timeout   = 150000; // long test
 
                         for (int c=0; c < NB_CORES; c++) begin
                             // any core may have to wait for AMO/flush, increase timeouts
@@ -981,7 +983,7 @@ module culsans_tb
                         base_addr = ArianeCfg.CachedRegionAddrBase[0];
 
                         rep_cnt   = 1000;
-                        timeout   = 100000; // long test
+                        timeout   = 150000; // long test
 
                         for (int c=0; c < NB_CORES; c++) begin
                             // any core may have to wait for flush, increase timeouts
