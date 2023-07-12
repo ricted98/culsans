@@ -408,9 +408,11 @@ module culsans_tb
 
     end
 
-
+    bit enable_mem_check=1;
     initial begin
         dcache_chk = new(sram_if, dc_sram_if, ArianeCfg, "dcache_checker");
+        void'($value$plusargs("ENABLE_MEM_CHECK=%b", enable_mem_check));
+        dcache_chk.enable_mem_check = enable_mem_check;
         dcache_chk.monitor();
     end
 
