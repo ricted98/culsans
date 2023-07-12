@@ -10,3 +10,6 @@
 [submodule "modules/axi_llc"]
 	path = modules/axi_llc
 	url = https://github.com/pulp-platform/axi_llc.git
+[submodule "cva6-sdk"]
+	path = cva6-sdk
+	url = https://github.com/openhwgroup/cva6-sdk.git

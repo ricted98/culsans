@@ -1,7 +1,5 @@
-ROOT_DIR := $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
+ROOT_DIR = $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 include $(ROOT_DIR)/../../common.mk
-
-
 
 SYS_DIR = $(ROOT_DIR)/../sw/sys
 LIB_DIR = $(ROOT_DIR)/../libs
@@ -35,13 +33,14 @@ GUI ?= 0
 # the CCU monitor can be disabled by setting ENABLE_CCU_MON=0
 ENABLE_CCU_MON ?= 1
 
-VSIM_LIB = $(ROOT_DIR)/../work
+VSIM_LIB      = ../../work
 VERILATOR_LIB = $(ROOT_DIR)/../work_verilate
 
 TOP_LEVEL = culsans_tb
 SIM_TCL = sim.tcl
 
 VSIM_FLAGS += -voptargs=+acc -t 1ns -64 -suppress 12110
+VSIM_FLAGS += -suppress 2879       # allow calling tasks in final procedure
 VSIM_FLAGS += -classdebug
 VSIM_FLAGS += -permit_unmatched_virtual_intf # allow declaring a virtual interface without a matching instance of the real interface
 VSIM_FLAGS += +TESTNAME=$(TESTNAME)
