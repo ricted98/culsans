@@ -68,7 +68,8 @@ CULSANS_SRC += $(CVA6_DIR)/vendor/planv/ace/src/snoop_intf.sv
 CULSANS_SRC += $(CVA6_DIR)/vendor/planv/ace/src/ccu_fsm.sv
 CULSANS_SRC += $(CVA6_DIR)/vendor/planv/ace/src/ace_trs_dec.sv
 CULSANS_SRC += $(CVA6_DIR)/vendor/planv/ace/src/ace_ccu_top.sv
-CULSANS_SRC += $(wildcard $(CULSANS_DIR)/src/*.sv)
+CULSANS_SRC += $(CULSANS_DIR)/src/culsans_peripherals.sv
+CULSANS_SRC += $(CULSANS_DIR)/src/culsans_xilinx.sv
 
 CULSANS_INCDIR := $(CULSANS_DIR)/include
 CULSANS_INCDIR := $(foreach dir, ${CULSANS_INCDIR}, +incdir+$(dir))
@@ -76,6 +77,8 @@ CULSANS_INCDIR := $(foreach dir, ${CULSANS_INCDIR}, +incdir+$(dir))
 TOP_LEVEL := culsans_xilinx
 
 fpga_filter += $(addprefix $(CVA6_DIR), corev_apu/fpga/src/ariane_xilinx.sv)
+fpga_filter += $(wildcard $(addprefix $(CVA6_DIR), corev_apu/tb/*.sv))
+fpga_filter += $(wildcard $(addprefix $(CVA6_DIR), corev_apu/tb/*/*.sv))
 
 all: $(bit)
 
@@ -94,7 +97,6 @@ $(ips): %.xci :
 	@cp $(ip-dir)/$(basename $(@F))/$(basename $(@F)).srcs/sources_1/ip/$(basename $(@F))/$(@F) $@
 
 # Check that RTL and SW are aligned with the NB_CORES setting
-
 RTL_NBCORES_DEF = "localparam NB_CORES = $(NB_CORES);"
 .PHONY: $(CULSANS_DIR)/include/culsans_pkg.sv
 $(CULSANS_DIR)/include/culsans_pkg.sv:
@@ -118,7 +120,7 @@ scripts/add_sources.tcl: $(ariane_pkg) $(src) $(fpga_src) $(uart_src) $(src_flis
 	@echo read_verilog -sv {$(CULSANS_PKG)}                                      >> scripts/add_sources.tcl
 	@echo read_verilog -sv {$(filter-out $(fpga_filter), $(LLC_SRC))}            >> scripts/add_sources.tcl
 	@echo read_verilog -sv {$(filter-out $(fpga_filter), $(CULSANS_SRC))} 	>> scripts/add_sources.tcl
-	@echo read_verilog -sv {$(fpga_src)}                                         >> scripts/add_sources.tcl
+	@echo read_verilog -sv {$(filter-out $(fpga_filter), $(fpga_src))}           >> scripts/add_sources.tcl
 
 .PHONY: clean
 
