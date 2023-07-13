@@ -97,6 +97,9 @@ report_clock_interaction                                                -file re
 set_property "steps.place_design.args.directive" "RuntimeOptimized" [get_runs impl_1]
 set_property "steps.route_design.args.directive" "RuntimeOptimized" [get_runs impl_1]
 
+# Temp: allow combinatorial loop in AXI interface between i_axi_llc and i_axi_riscv_atomics
+set_property ALLOW_COMBINATORIAL_LOOPS TRUE [get_nets i_axi_llc/i_axi_llc_top_raw/i_axi_bypass_mux/gen_mux.i_w_fifo/mst_w_ready_i]
+
 launch_runs impl_1
 wait_on_run impl_1
 launch_runs impl_1 -to_step write_bitstream
