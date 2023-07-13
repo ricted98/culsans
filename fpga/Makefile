@@ -33,7 +33,7 @@ ips := $(addprefix $(work-dir)/, $(ips))
 ips-target := $(join $(addsuffix /ip/, $(addprefix $(ip-dir)/, $(basename $(ips)))), $(ips))
 
 LLC_PKG := src/axi_llc_pkg.sv \
-						src/axi_llc_reg_pkg.sv
+           src/axi_llc_reg_pkg.sv
 LLC_PKG := $(addprefix $(LLC_DIR)/, $(LLC_PKG))
 
 LLC_SRC := src/axi_llc_burst_cutter.sv \
@@ -118,9 +118,9 @@ scripts/add_sources.tcl: $(ariane_pkg) $(src) $(fpga_src) $(uart_src) $(src_flis
 	@echo read_verilog -sv {$(filter-out $(fpga_filter), $(src_flist))}		>> scripts/add_sources.tcl
 	@echo read_verilog -sv {$(filter-out $(fpga_filter), $(src))} 	              >> scripts/add_sources.tcl
 	@echo read_verilog -sv {$(CULSANS_PKG)}                                      >> scripts/add_sources.tcl
+	@echo read_verilog -sv {$(filter-out $(fpga_filter), $(fpga_src))}           >> scripts/add_sources.tcl
 	@echo read_verilog -sv {$(filter-out $(fpga_filter), $(LLC_SRC))}            >> scripts/add_sources.tcl
 	@echo read_verilog -sv {$(filter-out $(fpga_filter), $(CULSANS_SRC))} 	>> scripts/add_sources.tcl
-	@echo read_verilog -sv {$(filter-out $(fpga_filter), $(fpga_src))}           >> scripts/add_sources.tcl
 
 .PHONY: clean
 

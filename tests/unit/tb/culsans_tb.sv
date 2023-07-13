@@ -127,9 +127,14 @@ module culsans_tb
     // DUT
     //--------------------------------------------------------------------------
     culsans_top #(
-        .InclSimDTM  (1'b0),
-        .NUM_WORDS   (NUM_WORDS), // 4Kwords
-        .BootAddress (culsans_pkg::DRAMBase + 64'h10_0000)
+        .InclSimDTM        (1'b0),
+        .NUM_WORDS         (NUM_WORDS), // 4Kwords
+        .BootAddress       (culsans_pkg::DRAMBase + 64'h10_0000),
+        .StallRandomOutput (0),
+        .StallRandomInput  (0),
+        .FixedDelayInput   (0),
+        .FixedDelayOutput  (0),
+        .HasLLC            (1) 
     ) i_culsans (
         .clk_i  ( clk      ),
         .rtc_i  ( rtc      ),

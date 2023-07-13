@@ -159,6 +159,8 @@ localparam AxiAddrWidth = 64;
 localparam AxiDataWidth = 64;
 localparam AxiIdWidthSlaves = culsans_pkg::IdWidthToXbar + $clog2(NBSlave);
 localparam AxiUserWidth = ariane_pkg::AXI_USER_WIDTH;
+localparam ariane_pkg::ariane_cfg_t ArianeCfg = culsans_pkg::ArianeFpgaSocCfg;
+
 
 `AXI_TYPEDEF_ALL(axi_slave,
                  logic [    AxiAddrWidth-1:0],
@@ -716,7 +718,7 @@ end
     assign hart_id[i] = i;
 
     ariane #(
-      .ArianeCfg     ( culsans_pkg::ArianeFpgaSocCfg ),
+      .ArianeCfg     ( ArianeCfg                     ),
       .AxiAddrWidth  ( AxiAddrWidth                  ),
       .AxiDataWidth  ( AxiDataWidth                  ),
       .AxiIdWidth    ( culsans_pkg::IdWidth          ),
@@ -927,7 +929,7 @@ ariane_peripherals #(
 // ---------------
 // DDR
 // ---------------
-logic [AxiIdWidthSlaves-1:0] s_axi_awid;
+logic [AxiIdWidthSlaves:0]   s_axi_awid;
 logic [AxiAddrWidth-1:0]     s_axi_awaddr;
 logic [7:0]                  s_axi_awlen;
 logic [2:0]                  s_axi_awsize;
@@ -944,11 +946,11 @@ logic [AxiDataWidth/8-1:0]   s_axi_wstrb;
 logic                        s_axi_wlast;
 logic                        s_axi_wvalid;
 logic                        s_axi_wready;
-logic [AxiIdWidthSlaves-1:0] s_axi_bid;
+logic [AxiIdWidthSlaves:0]   s_axi_bid;
 logic [1:0]                  s_axi_bresp;
 logic                        s_axi_bvalid;
 logic                        s_axi_bready;
-logic [AxiIdWidthSlaves-1:0] s_axi_arid;
+logic [AxiIdWidthSlaves:0]   s_axi_arid;
 logic [AxiAddrWidth-1:0]     s_axi_araddr;
 logic [7:0]                  s_axi_arlen;
 logic [2:0]                  s_axi_arsize;
@@ -960,7 +962,7 @@ logic [3:0]                  s_axi_arregion;
 logic [3:0]                  s_axi_arqos;
 logic                        s_axi_arvalid;
 logic                        s_axi_arready;
-logic [AxiIdWidthSlaves-1:0] s_axi_rid;
+logic [AxiIdWidthSlaves:0]   s_axi_rid;
 logic [AxiDataWidth-1:0]     s_axi_rdata;
 logic [1:0]                  s_axi_rresp;
 logic                        s_axi_rlast;
@@ -1020,8 +1022,8 @@ typedef logic [AxiUserWidth-1:0]   axi_user_t;
 
 `REG_BUS_TYPEDEF_ALL(conf, logic [31:0], logic [31:0], logic [3:0])
 
-typedef struct                  packed {
-   int unsigned                 idx;
+typedef struct packed {
+   int unsigned idx;
    axi_addr_t   start_addr;
    axi_addr_t   end_addr;
 } rule_full_t;
@@ -1036,18 +1038,20 @@ conf_rsp_t     reg_cfg_rsp;
 
 assign reg_cfg_req = '0;
 
-localparam axi_addr_t SpmRegionStart     = axi_addr_t'(0);
-localparam axi_addr_t SpmRegionLength    = 0;
-localparam axi_addr_t L2CachedRegionStart  = axi_addr_t'(32'h8000_0000);
-localparam axi_addr_t L2CachedRegionLength = axi_addr_t'(32'h4000_0000);
+localparam axi_addr_t SpmRegionStart       = axi_addr_t'(0);
+localparam axi_addr_t SpmRegionLength      = 0;
+localparam axi_addr_t L2CachedRegionStart  = axi_addr_t'(culsans_pkg::DRAMBase);
+localparam axi_addr_t L2CachedRegionLength = axi_addr_t'(culsans_pkg::DRAMLength);
 
 `AXI_ASSIGN_TO_REQ(axi_cpu_req, to_llc)
 `AXI_ASSIGN_FROM_RESP(to_llc, axi_cpu_res)
+`AXI_ASSIGN_FROM_REQ(dram, axi_mem_req)
+`AXI_ASSIGN_TO_RESP(axi_mem_res, dram)
 
 axi_llc_reg_wrap #(
    .SetAssociativity ( 32'd8              ),
    .NumLines         ( 32'd256            ),
-   .NumBlocks        ( 32'd8              ),
+   .NumBlocks        ( 32'd4              ),
    .AxiIdWidth       ( AxiIdWidthSlaves   ),
    .AxiAddrWidth     ( AxiAddrWidth       ),
    .AxiDataWidth     ( AxiDataWidth       ),
@@ -1060,23 +1064,21 @@ axi_llc_reg_wrap #(
    .reg_resp_t       ( conf_rsp_t         ),
    .rule_full_t      ( rule_full_t        )
 ) i_axi_llc (
-   .clk_i               ( clk                                    ),
-   .rst_ni              ( ndmreset_n                             ),
-   .test_i              ( 1'b0                                   ),
-   .slv_req_i           ( axi_cpu_req                            ),
-   .slv_resp_o          ( axi_cpu_res                            ),
-   .mst_req_o           ( axi_mem_req                            ),
-   .mst_resp_i          ( axi_mem_res                            ),
-   .conf_req_i          ( reg_cfg_req                            ),
-   .conf_resp_o         ( reg_cfg_rsp                            ),
-   .cached_start_addr_i ( L2CachedRegionStart                      ),
+   .clk_i               ( clk                                        ),
+   .rst_ni              ( ndmreset_n                                 ),
+   .test_i              ( 1'b0                                       ),
+   .slv_req_i           ( axi_cpu_req                                ),
+   .slv_resp_o          ( axi_cpu_res                                ),
+   .mst_req_o           ( axi_mem_req                                ),
+   .mst_resp_i          ( axi_mem_res                                ),
+   .conf_req_i          ( reg_cfg_req                                ),
+   .conf_resp_o         ( reg_cfg_rsp                                ),
+   .cached_start_addr_i ( L2CachedRegionStart                        ),
    .cached_end_addr_i   ( L2CachedRegionStart + L2CachedRegionLength ),
-   .spm_start_addr_i    ( SpmRegionStart                         ),
-   .axi_llc_events_o    ( llc_events                             )
+   .spm_start_addr_i    ( SpmRegionStart                             ),
+   .axi_llc_events_o    ( llc_events                                 )
 );
 
-`AXI_ASSIGN_FROM_REQ(dram, axi_mem_req)
-`AXI_ASSIGN_TO_RESP(axi_mem_res, dram)
 
 `ifdef PROTOCOL_CHECKER
 logic pc_status;
