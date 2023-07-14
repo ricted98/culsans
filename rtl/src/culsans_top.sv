@@ -495,7 +495,7 @@ module culsans_top #(
 
     axi_llc_reg_wrap #(
       .SetAssociativity ( 32'd8                     ),
-      .NumLines         ( 32'd128                   ),
+      .NumLines         ( 32'd256                   ),
       .NumBlocks        ( 32'd8                     ),
       .AxiIdWidth       ( culsans_pkg::IdWidthSlave ),
       .AxiAddrWidth     ( AXI_ADDRESS_WIDTH         ),
@@ -539,9 +539,16 @@ module culsans_top #(
     logic [AXI_DATA_WIDTH-1:0]    exit_wdata;
 
     axi_slv_req_t         llc_exit_req;
+    axi_slv_req_t         llc_exit_req_aw_only;
 
+    // axi2mem can't handle parallel AW and AR requests
     `AXI_ASSIGN_TO_REQ(llc_exit_req, to_llc);
-    `AXI_ASSIGN_FROM_REQ(to_llc_exit, llc_exit_req)
+    always_comb begin
+      llc_exit_req_aw_only          = llc_exit_req;
+      llc_exit_req_aw_only.ar_valid = 0;
+    end
+    `AXI_ASSIGN_FROM_REQ(to_llc_exit, llc_exit_req_aw_only)
+
     axi2mem #(
       .AXI_ID_WIDTH   ( culsans_pkg::IdWidthSlave   ),
       .AXI_ADDR_WIDTH ( AXI_ADDRESS_WIDTH           ),
