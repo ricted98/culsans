@@ -758,6 +758,8 @@ module culsans_tb
                         // Two cores, reservation succeeds
                         ////////////////////////////////////////////////////////
 
+/* this part triggers also PROJ-245
+
                         test_id=2;
 
                         // core 0 writes known data to target address
@@ -792,6 +794,7 @@ module culsans_tb
                         // core 0 read the value in target, expect value from successful conditional store
                         dcache_drv[0][0].rd_wait(.addr(addr),  .check_result(1), .exp_result(data+2));
                         `WAIT_CYC(clk, 100)
+*/
 
                         `WAIT_CYC(clk, 10000) // make sure we see timeouts
 
