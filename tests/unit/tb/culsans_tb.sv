@@ -560,6 +560,8 @@ module culsans_tb
                             `WAIT_CYC(clk, 100)
                         end
 
+                        `WAIT_CYC(clk, 100)
+
                         // simultaneous writes and read to same address
                         for (int i=0; i<100; i++) begin
                             for (int c=0; c < NB_CORES; c++) begin
@@ -588,6 +590,8 @@ module culsans_tb
                                 dcache_drv[c][1].rd(.addr(addr + (i << DCACHE_INDEX_WIDTH)));
                             end
                         end
+
+                        `WAIT_CYC(clk, 100)
 
                         // simultaneous writes and reads to same set
                         for (int i=0; i<500; i++) begin

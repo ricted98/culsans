@@ -3,7 +3,7 @@ include ../rtl.mk
 # add dummy version of cva6 for injecting cache requests from test bench drivers
 CVA6_TEST += $(CVA6_DIR)/corev_apu/tb/tb_std_cache_subsystem/hdl/cva6_cache_dummy.sv
 
-NB_CORES := 4
+NB_CORES := 2
 
 TESTS_DIR = ./testlist
 TESTLIST := $(dir $(wildcard $(TESTS_DIR)/*/.))
