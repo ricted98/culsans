@@ -1815,7 +1815,7 @@ axi_clock_converter_0 pcie_axi_clock_converter (
   .s_axi_rready   ( pcie_dwidth_axi_rready   )
 );
 `endif
-
+/*
   xlnx_ila i_ila (
     .clk     (clk),
     .probe0  (i_ccu.i_ccu_top.fsm.state_q),
@@ -1886,6 +1886,6 @@ axi_clock_converter_0 pcie_axi_clock_converter (
                gen_ariane[1].i_ariane.i_cva6.icache_flush_ctrl_cache,
                gen_ariane[1].i_ariane.i_cva6.WB.i_cache_subsystem.i_nbdcache.i_miss_handler.serve_amo_q})
   );
-
+*/
 
 endmodule
