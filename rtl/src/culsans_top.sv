@@ -405,13 +405,16 @@ module culsans_top #(
   logic [AXI_USER_WIDTH-1:0]    ruser;
 
   axi_riscv_atomics_wrap #(
-    .AXI_ADDR_WIDTH ( AXI_ADDRESS_WIDTH        ),
-    .AXI_DATA_WIDTH ( AXI_DATA_WIDTH           ),
-    .AXI_ID_WIDTH   ( culsans_pkg::IdWidthSlave ),
-    .AXI_USER_WIDTH ( AXI_USER_WIDTH           ),
-    .AXI_MAX_READ_TXNS  ( 1  ),
-    .AXI_MAX_WRITE_TXNS ( 1  ),
-    .RISCV_WORD_WIDTH   ( 64 )
+    .AXI_ADDR_WIDTH     ( AXI_ADDRESS_WIDTH               ),
+    .AXI_DATA_WIDTH     ( AXI_DATA_WIDTH                  ),
+    .AXI_ID_WIDTH       ( culsans_pkg::IdWidthSlave       ),
+    .AXI_USER_WIDTH     ( AXI_USER_WIDTH                  ),
+    .AXI_USER_AS_ID     ( 1                               ), // Use the AXI User signal instead of the AXI ID to track reservations
+    .AXI_USER_ID_MSB    ( $clog2(culsans_pkg::NB_CORES)-1 ), // MSB of the ID in the user signal
+    .AXI_USER_ID_LSB    ( 0                               ), // LSB of the ID in the user signal
+    .AXI_MAX_READ_TXNS  ( 1                               ),
+    .AXI_MAX_WRITE_TXNS ( 1                               ),
+    .RISCV_WORD_WIDTH   ( 64                              )
   ) i_axi_riscv_atomics (
     .clk_i,
     .rst_ni ( ndmreset_n               ),
