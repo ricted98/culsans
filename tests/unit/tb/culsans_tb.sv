@@ -655,7 +655,9 @@ module culsans_tb
                         fork
                             begin
                                 // flush
+                                dcache_chk.enable_mem_check = 1'b0; // disable memory check during flush, cache status gets updated before memory content is actually written back
                                 dcache_mgmt_drv[0].flush();
+                                dcache_chk.enable_mem_check = enable_mem_check;
                             end
                             begin
                                 for (int i=2047;  i>=0; i--) begin
@@ -1167,7 +1169,9 @@ module culsans_tb
                                                 dcache_drv[cc][port].rd_wait(.addr(base_addr + offset));
                                             end
                                         end else begin
+                                            dcache_chk.enable_mem_check = 1'b0; // disable memory check during flush, cache status gets updated before memory content is actually written back
                                             dcache_mgmt_drv[cc].flush();
+                                            dcache_chk.enable_mem_check = enable_mem_check;
                                         end
                                     end
                                 end
