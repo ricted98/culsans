@@ -43,6 +43,7 @@ set_property include_dirs { \
       "../modules/cva6/vendor/pulp-platform/common_cells/include" \
       "../modules/cva6/vendor/pulp-platform/axi/include" \
       "../modules/cva6/vendor/planv/ace/include" \
+      "../modules/axi_llc/include"
       "../modules/cva6/corev_apu/register_interface/include" \
 } [current_fileset]
 
