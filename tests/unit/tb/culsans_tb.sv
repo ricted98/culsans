@@ -27,7 +27,7 @@ module culsans_tb
     localparam int unsigned DCACHE_PORTS       = 3;
     localparam int unsigned NB_CORES           = culsans_pkg::NB_CORES;
     localparam int unsigned NUM_WORDS          = 4**10;
-    localparam bit          STALL_RANDOM_DELAY = `ifdef TB_AXI_RAND_DELAY  `TB_AXI_RAND_DELAY  `else 1'b1  `endif;
+    localparam bit          STALL_RANDOM_DELAY = `ifdef TB_AXI_RAND_DELAY  `TB_AXI_RAND_DELAY  `else 1'b0  `endif;
     localparam int unsigned FIXED_AXI_DELAY    = `ifdef TB_AXI_FIXED_DELAY `TB_AXI_FIXED_DELAY `else 0     `endif;
     localparam bit          HAS_LLC            = `ifdef TB_HAS_LLC         `TB_HAS_LLC         `else  1'b1 `endif;
     localparam int unsigned DCACHE_INDEX_DIST = std_cache_pkg::DCACHE_NUM_WORDS * DCACHE_LINE_WIDTH / 8; // Distance between two addresses mapping to the same index
@@ -63,6 +63,11 @@ module culsans_tb
     amo_driver              amo_drv          [NB_CORES];
     amo_monitor             amo_mon          [NB_CORES];
 
+    sram_monitor #(
+        .DATA_WIDTH (AxiDataWidth),
+        .NUM_WORDS  (NUM_WORDS)
+    ) sram_mon;
+
     mailbox #(dcache_req)   dcache_req_mbox      [NB_CORES][DCACHE_PORTS];
     mailbox #(dcache_resp)  dcache_resp_mbox     [NB_CORES][DCACHE_PORTS];
     mailbox #(dcache_req)   dcache_req_mbox_fwd  [NB_CORES];
@@ -81,11 +86,22 @@ module culsans_tb
         .DCACHE_SET_ASSOC (DCACHE_SET_ASSOC)
     ) sram_if [NB_CORES] ();
 
+    sram_port_intf #(
+        .NUM_WORDS  (NUM_WORDS),
+        .DATA_WIDTH (AxiDataWidth)
+    ) sram_port_if (clk);
+
+    sram_scoreboard #(
+        .NUM_WORDS  (NUM_WORDS),
+        .DATA_WIDTH (AxiDataWidth)
+    ) sram_scbd, sram_bypass_scbd;
+
     std_cache_scoreboard #(
         .AXI_ADDR_WIDTH ( AxiAddrWidth ),
         .AXI_DATA_WIDTH ( AxiDataWidth ),
         .AXI_ID_WIDTH   ( AxiIdWidth   ),
-        .AXI_USER_WIDTH ( AxiUserWidth )
+        .AXI_USER_WIDTH ( AxiUserWidth ),
+        .NUM_WORDS      ( NUM_WORDS    )
     ) cache_scbd [NB_CORES];
 
     std_dcache_checker #(
@@ -105,6 +121,10 @@ module culsans_tb
     mailbox ac_mbx [NB_CORES];
     mailbox cd_mbx [NB_CORES];
     mailbox cr_mbx [NB_CORES];
+
+    // SRAM checker mailboxes
+    mailbox #(sram_trans #(.DATA_WIDTH(AxiDataWidth), .NUM_WORDS(NUM_WORDS))) sram_actual_mbx, sram_expected_mbx, sram_bypass_actual_mbx, sram_bypass_expected_mbx;
+
 
     //--------------------------------------------------------------------------
     // Clock & reset generation
@@ -518,6 +538,10 @@ module culsans_tb
             cache_scbd[core_idx].cr_mbx            = cr_mbx            [core_idx];
 
             cache_scbd[core_idx].mgmt_mbox         = mgmt_mbox         [core_idx];
+
+            #1; // wait for mailbox to be created
+            cache_scbd[core_idx].sram_trans_mbox = sram_expected_mbx;
+            cache_scbd[core_idx].sram_trans_bypass_mbox = sram_bypass_expected_mbx;
         end
 
         // assign SRAM IF
@@ -533,6 +557,21 @@ module culsans_tb
 
     end
 
+    // assign SRAM port IF
+    assign sram_port_if.we    = i_culsans.i_sram.we_i;
+    assign sram_port_if.req   = i_culsans.i_sram.req_i;
+    assign sram_port_if.addr  = i_culsans.i_sram.addr_i;
+    assign sram_port_if.wdata = i_culsans.i_sram.wdata_i;
+    assign sram_port_if.be    = i_culsans.i_sram.be_i;
+    assign sram_port_if.rdata = i_culsans.i_sram.rdata_o;
+
+    initial begin : SRAM_MON
+        sram_mon = new(sram_port_if, ArianeCfg, "sram_monitor");
+        #1; // wait for mailbox to be created
+        sram_mon.trans_mbox = sram_actual_mbx;
+        sram_mon.trans_bypass_mbox = sram_bypass_actual_mbx;
+    end
+
 
     bit enable_mem_check=1;
     initial begin
@@ -546,6 +585,33 @@ module culsans_tb
 
             dcache_chk.dcache_req_mbox[core_idx]  = dcache_req_mbox_fwd  [core_idx];
             dcache_chk.dcache_resp_mbox[core_idx] = dcache_resp_mbox_fwd [core_idx];
+        end
+    end
+
+    bit enable_sram_check=1;
+    initial begin
+        sram_scbd = new("sram_scoreboard");
+        sram_actual_mbx = new();
+        sram_expected_mbx = new();
+
+        sram_bypass_scbd = new("sram_bypass_scoreboard");
+        sram_bypass_actual_mbx = new();
+        sram_bypass_expected_mbx = new();
+
+        void'($value$plusargs("ENABLE_SRAM_CHECK=%b", enable_sram_check));
+        sram_scbd.mbox_actual = sram_actual_mbx;
+        sram_scbd.mbox_expected = sram_expected_mbx;
+
+        sram_bypass_scbd.mbox_actual = sram_bypass_actual_mbx;
+        sram_bypass_scbd.mbox_expected = sram_bypass_expected_mbx;
+    end
+
+    final begin
+        if (enable_sram_check) begin
+            assert (sram_scbd.mbox_expected.num() == 0) else $error("SRAM expected mailbox not empty");
+            assert (sram_scbd.mbox_actual.num() == 0) else $error("SRAM actual mailbox not empty");
+            assert (sram_bypass_scbd.mbox_expected.num() == 0) else $error("SRAM bypass expected mailbox not empty");
+            assert (sram_bypass_scbd.mbox_actual.num() == 0) else $error("SRAM bypass actual mailbox not empty");
         end
     end
 
@@ -583,6 +649,13 @@ module culsans_tb
                 ccu_mon.run();
             end
             dcache_chk.monitor();
+            if (enable_sram_check) begin
+                fork
+                    sram_scbd.run();
+                    sram_bypass_scbd.run();
+                    sram_mon.monitor();
+                join
+            end
         join_none
     endtask
 
